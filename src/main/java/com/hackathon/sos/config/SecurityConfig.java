@@ -51,8 +51,11 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // ✅ 수정: context path가 /api이므로 /api/auth/** 도 허용
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/emergency/alert").permitAll()  // 아두이노/라즈베리파이에서 인증 없이 호출
+                        .requestMatchers("/api/auth/**").permitAll()  // 🔥 추가!
+                        .requestMatchers("/emergency/alert").permitAll()
+                        .requestMatchers("/api/emergency/alert").permitAll()  // 🔥 추가!
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated()
@@ -60,7 +63,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin()));  // H2 Console용
+                        .frameOptions(frame -> frame.sameOrigin()));
 
         return http.build();
     }
